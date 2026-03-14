@@ -9,7 +9,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:5173") // 允许 Vue 的默认端口跨域请求
+// 修改这里：用星号允许所有来源，或者精准匹配你的 5174 端口
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class UserController {
 
     @Autowired
@@ -33,6 +34,18 @@ public List<User> getUsers(@RequestParam(required = false) String name) {
     public User  createUser(@RequestBody User user) {
         return  userRepository.save(user);
     }
+    // 1. 处理更新请求，路径带上 ID
+@PutMapping("/{id}")
+public User updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+    // 2. 先根据 ID 找到旧数据，如果找不到则抛出异常（或者你可以返回 null）
+    return userRepository.findById(id).map(user -> {
+        // 3. 将前端传来的新值赋给旧对象
+        user.setName(userDetails.getName());
+        user.setEmail(userDetails.getEmail());
+        // 4. 保存并返回更新后的对象
+        return userRepository.save(user);
+    }).orElseThrow(() -> new RuntimeException("User not found with id " + id));
+}
   
 
 
