@@ -15,19 +15,26 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+  // 删掉原来的 getAllUsers 和新加的 getUsers，统一改成下面这个：
+@GetMapping
+public List<User> getUsers(@RequestParam(required = false) String name) {
+    if (name != null && !name.isEmpty()) {
+        // 如果有搜索词，走模糊查询
+        return userRepository.findByNameContaining(name);
     }
+    // 如果没有搜索词，查询全部
+    return userRepository.findAll();
+}
    // 在 getAllUsers 方法下面添加这个删除接口
     @DeleteMapping("/{id}") // 这里的 "/{id}" 一个字符都不能错
     public void deleteUser(@PathVariable Long id) { // 必须有 @PathVariable 注解
-        userRepository.deleteById(id);
-    }
-
-//hjhkjhk
+        userRepository.deleteById(id);    }  
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userRepository.save(user);
+    public User  createUser(@RequestBody User user) {
+        return  userRepository.save(user);
     }
+  
+
+
 }
+
